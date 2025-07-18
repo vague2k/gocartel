@@ -1,8 +1,10 @@
 package gocartel
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type clientHeaders struct {
@@ -13,15 +15,17 @@ type clientHeaders struct {
 }
 
 type bigCartelClient struct {
-	baseURL string
-	client  *http.Client
-	headers *clientHeaders
+	baseURL         string
+	client          *http.Client
+	headers         *clientHeaders
+	timeoutDuration time.Duration
 }
 
 type ClientOpts struct {
 	BaseURL,
 	UserAgent,
 	BasicAuth string
+	TimeoutDuration time.Duration
 }
 
 func NewClient(opts ClientOpts) bigCartelClient {
@@ -32,15 +36,19 @@ func NewClient(opts ClientOpts) bigCartelClient {
 		contentType:   "application/vnd.api+json",
 		authorization: opts.BasicAuth,
 	}
+	if opts.TimeoutDuration == 0 {
+		opts.TimeoutDuration = 60 * time.Second
+	}
 	return bigCartelClient{
-		baseURL: opts.BaseURL,
-		client:  newClient,
-		headers: headers,
+		baseURL:         opts.BaseURL,
+		client:          newClient,
+		headers:         headers,
+		timeoutDuration: opts.TimeoutDuration,
 	}
 }
 
-func (c bigCartelClient) get(endpoint string) (*http.Response, error) {
-	req, err := http.NewRequest("GET", c.baseURL+endpoint, nil)
+func (c bigCartelClient) get(ctx context.Context, endpoint string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}

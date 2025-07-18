@@ -1,6 +1,7 @@
 package gocartel
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -78,8 +79,8 @@ type selfRelatedLinks struct {
 	} `json:"links"`
 }
 
-func (c bigCartelClient) Account() (*accountData, error) {
-	resp, err := c.get("/accounts")
+func (c bigCartelClient) AccountWithContext(ctx context.Context) (*accountData, error) {
+	resp, err := c.get(ctx, "/accounts")
 	if err != nil {
 		return nil, err
 	}
@@ -95,4 +96,10 @@ func (c bigCartelClient) Account() (*accountData, error) {
 	}
 
 	return &result.Data[0], nil
+}
+
+func (c bigCartelClient) Account() (*accountData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeoutDuration)
+	defer cancel()
+	return c.AccountWithContext(ctx)
 }
