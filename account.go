@@ -98,8 +98,33 @@ func (c bigCartelClient) AccountWithContext(ctx context.Context) (*accountData, 
 	return &result.Data[0], nil
 }
 
+func (c bigCartelClient) AccountByIDWithContext(ctx context.Context, id string) (*accountData, error) {
+	resp, err := c.get(ctx, "/accounts/"+id)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	result := &accounts{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	if result == nil {
+		return nil, fmt.Errorf("no account data found")
+	}
+
+	return &result.Data[0], nil
+}
+
 func (c bigCartelClient) Account() (*accountData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeoutDuration)
 	defer cancel()
 	return c.AccountWithContext(ctx)
+}
+
+func (c bigCartelClient) AccountByID(id string) (*accountData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeoutDuration)
+	defer cancel()
+	return c.AccountByIDWithContext(ctx, id)
 }
