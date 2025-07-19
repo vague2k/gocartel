@@ -7,9 +7,12 @@ import (
 	"time"
 )
 
+type accountByID struct {
+	Data accountData `json:"data"`
+}
+
 type accounts struct {
 	Data []accountData `json:"data"`
-	// Links struct{}      `json:"links"`
 }
 
 type accountData struct {
@@ -79,7 +82,7 @@ type selfRelatedLinks struct {
 	} `json:"links"`
 }
 
-func (c bigCartelClient) AccountWithContext(ctx context.Context) (*accountData, error) {
+func (c BigCartelClient) AccountWithContext(ctx context.Context) (*accounts, error) {
 	resp, err := c.get(ctx, "/accounts")
 	if err != nil {
 		return nil, err
@@ -95,17 +98,17 @@ func (c bigCartelClient) AccountWithContext(ctx context.Context) (*accountData, 
 		return nil, fmt.Errorf("no account data found")
 	}
 
-	return &result.Data[0], nil
+	return result, nil
 }
 
-func (c bigCartelClient) AccountByIDWithContext(ctx context.Context, id string) (*accountData, error) {
+func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) (*accountByID, error) {
 	resp, err := c.get(ctx, "/accounts/"+id)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	result := &accounts{}
+	result := &accountByID{}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
@@ -114,17 +117,17 @@ func (c bigCartelClient) AccountByIDWithContext(ctx context.Context, id string) 
 		return nil, fmt.Errorf("no account data found")
 	}
 
-	return &result.Data[0], nil
+	return result, nil
 }
 
-func (c bigCartelClient) Account() (*accountData, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeoutDuration)
+func (c BigCartelClient) Account() (*accounts, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
 	defer cancel()
 	return c.AccountWithContext(ctx)
 }
 
-func (c bigCartelClient) AccountByID(id string) (*accountData, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeoutDuration)
+func (c BigCartelClient) AccountByID(id string) (*accountByID, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
 	defer cancel()
 	return c.AccountByIDWithContext(ctx, id)
 }
