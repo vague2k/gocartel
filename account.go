@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type accountByID struct {
+type account struct {
 	Data accountData `json:"data"`
 }
 
@@ -82,7 +82,7 @@ type selfRelatedLinks struct {
 	} `json:"links"`
 }
 
-func (c BigCartelClient) AccountWithContext(ctx context.Context) (*accounts, error) {
+func (c BigCartelClient) AccountWithContext(ctx context.Context) (*account, error) {
 	resp, err := c.get(ctx, "/accounts")
 	if err != nil {
 		return nil, err
@@ -94,39 +94,39 @@ func (c BigCartelClient) AccountWithContext(ctx context.Context) (*accounts, err
 		return nil, err
 	}
 
-	if result == nil {
+	if result.Data[0].ID == "" && result.Data[0].Type == "" {
 		return nil, fmt.Errorf("no account data found")
 	}
 
-	return result, nil
+	return &account{Data: result.Data[0]}, nil
 }
 
-func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) (*accountByID, error) {
+func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) (*account, error) {
 	resp, err := c.get(ctx, "/accounts/"+id)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	result := &accountByID{}
+	var result account
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 
-	if result == nil {
+	if result.Data.ID == "" && result.Data.Type == "" {
 		return nil, fmt.Errorf("no account data found")
 	}
 
-	return result, nil
+	return &account{Data: result.Data}, nil
 }
 
-func (c BigCartelClient) Account() (*accounts, error) {
+func (c BigCartelClient) Account() (*account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
 	defer cancel()
 	return c.AccountWithContext(ctx)
 }
 
-func (c BigCartelClient) AccountByID(id string) (*accountByID, error) {
+func (c BigCartelClient) AccountByID(id string) (*account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
 	defer cancel()
 	return c.AccountByIDWithContext(ctx, id)
