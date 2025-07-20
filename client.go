@@ -1,3 +1,7 @@
+// Package gocartel provides a comprehensive API wrapper for the BigCartel API.
+//
+// gocartel offers an idiomatic way to interact with the BigCartel
+// platform in Go applications
 package gocartel
 
 import (
