@@ -121,13 +121,13 @@ func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) 
 }
 
 func (c BigCartelClient) Account() (*account, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), c.Client.Timeout)
 	defer cancel()
 	return c.AccountWithContext(ctx)
 }
 
 func (c BigCartelClient) AccountByID(id string) (*account, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.TimeoutDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), c.Client.Timeout)
 	defer cancel()
 	return c.AccountByIDWithContext(ctx, id)
 }

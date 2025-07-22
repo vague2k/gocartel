@@ -19,35 +19,35 @@ type BigCartelClientHeaders struct {
 }
 
 type BigCartelClient struct {
-	BaseURL         string
-	Client          *http.Client
-	Headers         *BigCartelClientHeaders
-	TimeoutDuration time.Duration
+	BaseURL string
+	Client  *http.Client
+	Headers *BigCartelClientHeaders
 }
 
 type ClientOpts struct {
 	BaseURL,
 	UserAgent,
 	BasicAuth string
-	TimeoutDuration time.Duration
+	HTTPClient *http.Client // 60 seconds is the default timeout duration if none was given
 }
 
 func NewClient(opts ClientOpts) BigCartelClient {
-	newClient := &http.Client{}
+	if opts.HTTPClient == nil {
+		opts.HTTPClient = &http.Client{}
+	}
+	if opts.HTTPClient.Timeout == 0 {
+		opts.HTTPClient.Timeout = 60 * time.Second
+	}
 	headers := &BigCartelClientHeaders{
 		UserAgent:     opts.UserAgent,
 		Accept:        "application/vnd.api+json",
 		ContentType:   "application/vnd.api+json",
 		Authorization: opts.BasicAuth,
 	}
-	if opts.TimeoutDuration == 0 {
-		opts.TimeoutDuration = 60 * time.Second
-	}
 	return BigCartelClient{
-		BaseURL:         opts.BaseURL,
-		Client:          newClient,
-		Headers:         headers,
-		TimeoutDuration: opts.TimeoutDuration,
+		BaseURL: opts.BaseURL,
+		Client:  opts.HTTPClient,
+		Headers: headers,
 	}
 }
 
