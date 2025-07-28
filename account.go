@@ -74,7 +74,7 @@ func (c BigCartelClient) AccountWithContext(ctx context.Context) (*account, erro
 	if err != nil {
 		return nil, err
 	}
-	var JSON []byte
+	var JSON json.RawMessage
 	err = json.Unmarshal(body, &JSON)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) 
 	if err != nil {
 		return nil, err
 	}
-	var JSON []byte
+	var JSON json.RawMessage
 	err = json.Unmarshal(body, &JSON)
 	if err != nil {
 		return nil, err
