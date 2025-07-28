@@ -25,7 +25,6 @@ type BigCartelClient struct {
 }
 
 type ClientOpts struct {
-	BaseURL,
 	UserAgent,
 	BasicAuth string
 	HTTPClient *http.Client // 60 seconds is the default timeout duration if none was given
@@ -45,7 +44,7 @@ func NewClient(opts ClientOpts) BigCartelClient {
 		Authorization: opts.BasicAuth,
 	}
 	return BigCartelClient{
-		BaseURL: opts.BaseURL,
+		BaseURL: "https://api.bigcartel.com/v1",
 		Client:  opts.HTTPClient,
 		Headers: headers,
 	}

@@ -13,7 +13,6 @@ func TestClient() BigCartelClient {
 		panic("Error loading .env file")
 	}
 	opts := ClientOpts{
-		BaseURL:    "https://api.bigcartel.com/v1",
 		UserAgent:  os.Getenv("USER_AGENT"),
 		BasicAuth:  os.Getenv("BASIC_AUTH"),
 		HTTPClient: &http.Client{},
