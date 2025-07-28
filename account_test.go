@@ -3,6 +3,7 @@ package gocartel
 import (
 	"testing"
 
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -10,7 +11,8 @@ func TestAccount(t *testing.T) {
 	c := TestClient()
 	acc, err := c.Account()
 	assert.NoError(t, err)
-	assert.Equal(t, "Blackheaven Records", acc.Data.Attributes.StoreName)
+	assert.Equal(t, "Blackheaven Records", acc.StoreName)
+	t.Log(litter.Sdump(acc))
 }
 
 func TestAccountByID(t *testing.T) {
@@ -18,7 +20,8 @@ func TestAccountByID(t *testing.T) {
 	internalID := InternalStoreID()
 	acc, err := c.AccountByID(internalID)
 	assert.NoError(t, err)
-	assert.Equal(t, "Blackheaven Records", acc.Data.Attributes.StoreName)
+	assert.Equal(t, "Blackheaven Records", acc.StoreName)
+	t.Log(litter.Sdump(acc))
 }
 
 func TestAccountByIDErrors(t *testing.T) {
