@@ -10,7 +10,7 @@ import (
 )
 
 type account struct {
-	ID               int64           // The unique ID of the account.
+	ID               string          // The unique ID of the account.
 	Subdomain        string          // The unique subdomain for the account on .bigcartel.com.
 	StoreName        string          // The name of the shop.
 	Description      string          // A brief description of the shop.
@@ -133,55 +133,55 @@ func getAccountValues(b []byte, withID bool) (*account, error) {
 	} else {
 		dataQuery = "data.0"
 	}
-
 	attributes := fmt.Sprintf("%s.attributes", dataQuery)
 
-	if !gjson.GetBytes(b, dataQuery+".id").Exists() || !gjson.GetBytes(b, attributes+".url").Exists() {
+	parsed := gjson.ParseBytes(b)
+	if !parsed.Get(dataQuery+".id").Exists() || !parsed.Get(attributes+".url").Exists() {
 		return nil, fmt.Errorf("no account data found")
 	}
 
 	acc := &account{
-		ID:               gjson.GetBytes(b, dataQuery+".id").Int(),
-		Subdomain:        gjson.GetBytes(b, attributes+".subdomain").String(),
-		StoreName:        gjson.GetBytes(b, attributes+".store_name").String(),
-		Description:      gjson.GetBytes(b, attributes+".description").String(),
-		ContactEmail:     gjson.GetBytes(b, attributes+".contact_email").String(),
-		FirstName:        gjson.GetBytes(b, attributes+".first_name").String(),
-		LastName:         gjson.GetBytes(b, attributes+".last_name").String(),
-		URL:              gjson.GetBytes(b, attributes+".url").String(),
-		Website:          gjson.GetBytes(b, attributes+".website").String(),
-		CreatedAt:        gjson.GetBytes(b, attributes+".created_at").String(),
-		UpdatedAt:        gjson.GetBytes(b, attributes+".updated_at").String(),
-		UnderMaintenance: gjson.GetBytes(b, attributes+".under_maintenance").Bool(),
-		InventoryEnabled: gjson.GetBytes(b, attributes+".inventory_enabled").Bool(),
-		ArtistsEnabled:   gjson.GetBytes(b, attributes+".artists_enabled").Bool(),
-		Timezone:         gjson.GetBytes(b, attributes+".time_zone").String(),
+		ID:               parsed.Get(dataQuery + ".id").String(),
+		Subdomain:        parsed.Get(attributes + ".subdomain").String(),
+		StoreName:        parsed.Get(attributes + ".store_name").String(),
+		Description:      parsed.Get(attributes + ".description").String(),
+		ContactEmail:     parsed.Get(attributes + ".contact_email").String(),
+		FirstName:        parsed.Get(attributes + ".first_name").String(),
+		LastName:         parsed.Get(attributes + ".last_name").String(),
+		URL:              parsed.Get(attributes + ".url").String(),
+		Website:          parsed.Get(attributes + ".website").String(),
+		CreatedAt:        parsed.Get(attributes + ".created_at").String(),
+		UpdatedAt:        parsed.Get(attributes + ".updated_at").String(),
+		UnderMaintenance: parsed.Get(attributes + ".under_maintenance").Bool(),
+		InventoryEnabled: parsed.Get(attributes + ".inventory_enabled").Bool(),
+		ArtistsEnabled:   parsed.Get(attributes + ".artists_enabled").Bool(),
+		Timezone:         parsed.Get(attributes + ".time_zone").String(),
 		Currency: accountCurrency{
-			ID:     gjson.GetBytes(b, `included.#(type="currencies").id`).String(),
-			Name:   gjson.GetBytes(b, `included.#(type="currencies").attributes.name`).String(),
-			Sign:   gjson.GetBytes(b, `included.#(type="currencies").attributes.sign`).String(),
-			Locale: gjson.GetBytes(b, `included.#(type="currencies").attributes.locale`).String(),
+			ID:     parsed.Get(`included.#(type="currencies").id`).String(),
+			Name:   parsed.Get(`included.#(type="currencies").attributes.name`).String(),
+			Sign:   parsed.Get(`included.#(type="currencies").attributes.sign`).String(),
+			Locale: parsed.Get(`included.#(type="currencies").attributes.locale`).String(),
 		},
 		Country: accountCountry{
-			ID:   gjson.GetBytes(b, `included.#(type="countries").id`).String(),
-			Name: gjson.GetBytes(b, `included.#(type="countries").attributes.name`).String(),
+			ID:   parsed.Get(`included.#(type="countries").id`).String(),
+			Name: parsed.Get(`included.#(type="countries").attributes.name`).String(),
 		},
 		Plan: accountPlan{
-			ID:                  gjson.GetBytes(b, `included.#(type="plans").id`).String(),
-			Name:                gjson.GetBytes(b, `included.#(type="plans").attributes.name`).String(),
-			MaxProducts:         gjson.GetBytes(b, `included.#(type="plans").attributes.max_products`).Int(),
-			MaxImagesPerProduct: gjson.GetBytes(b, `included.#(type="plans").attributes.max_images_per_product`).Int(),
-			MonthlyRate:         gjson.GetBytes(b, `included.#(type="plans").attributes.monthly_rate`).Float(),
+			ID:                  parsed.Get(`included.#(type="plans").id`).String(),
+			Name:                parsed.Get(`included.#(type="plans").attributes.name`).String(),
+			MaxProducts:         parsed.Get(`included.#(type="plans").attributes.max_products`).Int(),
+			MaxImagesPerProduct: parsed.Get(`included.#(type="plans").attributes.max_images_per_product`).Int(),
+			MonthlyRate:         parsed.Get(`included.#(type="plans").attributes.monthly_rate`).Float(),
 		},
 		Image: accountImage{
-			ID:  gjson.GetBytes(b, `included.#(type="account_images").id`).String(),
-			URL: gjson.GetBytes(b, `included.#(type="account_images").attributes.url`).String(),
+			ID:  parsed.Get(`included.#(type="account_images").id`).String(),
+			URL: parsed.Get(`included.#(type="account_images").attributes.url`).String(),
 		},
 		Links: accountLinks{
-			Self:       gjson.GetBytes(b, dataQuery+".links.self").String(),
-			Orders:     gjson.GetBytes(b, dataQuery+".relationships.orders.links.related").String(),
-			Categories: gjson.GetBytes(b, dataQuery+".relationships.categories.links.related").String(),
-			Products:   gjson.GetBytes(b, dataQuery+".relationships.products.links.related").String(),
+			Self:       parsed.Get(dataQuery + ".links.self").String(),
+			Orders:     parsed.Get(dataQuery + ".relationships.orders.links.related").String(),
+			Categories: parsed.Get(dataQuery + ".relationships.categories.links.related").String(),
+			Products:   parsed.Get(dataQuery + ".relationships.products.links.related").String(),
 		},
 	}
 
