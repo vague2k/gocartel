@@ -7,6 +7,7 @@ package gocartel
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -52,6 +53,15 @@ func NewClient(opts ClientOpts) BigCartelClient {
 
 func (c BigCartelClient) get(ctx context.Context, endpoint string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", c.BaseURL+endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	c.setHeaders(req)
+	return c.Client.Do(req)
+}
+
+func (c BigCartelClient) post(ctx context.Context, endpoint string, data io.Reader) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, "POST", c.BaseURL+endpoint, data)
 	if err != nil {
 		return nil, err
 	}

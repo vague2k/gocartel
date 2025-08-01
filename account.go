@@ -30,6 +30,8 @@ type account struct {
 	Plan             accountPlan     // The account's plan details.
 	Image            accountImage    // The account image's details.
 	Links            accountLinks
+
+	parentClient BigCartelClient
 }
 
 type accountCurrency struct {
@@ -85,6 +87,7 @@ func (c BigCartelClient) AccountWithContext(ctx context.Context) (*account, erro
 		return nil, err
 	}
 
+	acc.parentClient = c
 	return acc, nil
 }
 
@@ -109,6 +112,7 @@ func (c BigCartelClient) AccountByIDWithContext(ctx context.Context, id string) 
 		return nil, err
 	}
 
+	acc.parentClient = c
 	return acc, nil
 }
 
